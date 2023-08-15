@@ -7,14 +7,13 @@ def _channel_shuffle(x, n_group):
     n, h, w, c = x.shape.as_list()
     x_reshaped = tf.reshape(x, [-1, h, w, n_group, c // n_group])
     x_transposed = tf.transpose(x_reshaped, [0, 1, 2, 4, 3])
-    output = tf.reshape(x_transposed, [-1, h, w, c])
-    return output
+    return tf.reshape(x_transposed, [-1, h, w, c])
 
 
 def _group_norm_and_channel_shuffle(x, is_train, G=32, epsilon=1e-12, use_shuffle=False, name='_group_norm'):
     with tf.variable_scope(name):
         N, H, W, C = x.get_shape().as_list()
-        if N == None:
+        if N is None:
             N = -1
         G = min(G, C)
         x = tf.reshape(x, [N, G, H, W, C // G])
@@ -70,8 +69,7 @@ def _add_coord(x):
     x_coord = tf.reshape(x_coord, [1, 1, -1, 1])  # b,h,w,c
     x_coord = tf.tile(x_coord, [batch_size, height, 1, 1]) / (width-1)
 
-    o = tf.concat([x, y_coord, x_coord], 3)
-    return o
+    return tf.concat([x, y_coord, x_coord], 3)
 
 
 def coord_layer(net):
@@ -205,7 +203,7 @@ def resblock_2(net, n_filter, strides, act, name):
 
 
 def ablock(net, n_filter, strides, act, n_block, name):
-    with tf.variable_scope('ab_' + name):
+    with tf.variable_scope(f'ab_{name}'):
         net = resblock_1(net, n_filter, strides, act, 'rb_0')
         for i in range(1, n_block):
             net = resblock_1(net, n_filter, 1, act, 'rb_%d' % i)
@@ -213,7 +211,7 @@ def ablock(net, n_filter, strides, act, n_block, name):
 
 
 def group_block(net, n_filter, strides, act, block_type, n_block, name):
-    with tf.variable_scope('gb_' + name):
+    with tf.variable_scope(f'gb_{name}'):
         net = block_type(net, n_filter=n_filter, strides=strides, act=act, name='b_0')
         for i in range(1, n_block):
             net = block_type(net, n_filter, 1, act, 'b_%d' % i)
