@@ -124,11 +124,9 @@ for e in range(n_epoch):
             run_metadata = tf.RunMetadata()
             _, sum = sess.run([[g_optim, d_optim, kt_update_op], merge_summary_op], feed_dict, run_options, run_metadata)
             sum_file.add_run_metadata(run_metadata, 'step%d' % (e*n_batch+b))
-            sum_file.add_summary(sum, e*n_batch+b)
         else:
             _, sum = sess.run([[g_optim, d_optim, kt_update_op], merge_summary_op], feed_dict)
-            sum_file.add_summary(sum, e*n_batch+b)
-
+        sum_file.add_summary(sum, e*n_batch+b)
         if b % 20 == 0:
             lr *= 0.95
 
